@@ -178,12 +178,43 @@ This environment is suitable for:
 - No kubectl connection to clusters (CLI only)
 - Temporary environment (session-based)
 
+## User Package Manager - mise
+
+✅ **mise** (https://mise.jdx.dev/) has been tested and **works successfully** in this environment!
+
+mise is a polyglot tool version manager that allows installing and managing development tools **without sudo**:
+- Supports 15+ backends (npm, cargo, go, pipx, GitHub releases, etc.)
+- 2,146+ tools available via aqua registry
+- Version: 2025.11.5 installed at `/root/.local/bin/mise`
+
+**Tested Working:**
+- ✅ Core tools (usage@2.8.0)
+- ✅ npm packages (prettier@3.6.2)
+- ⚠️ GitHub tools (need GITHUB_TOKEN to avoid rate limits)
+
+See **[mise-package-manager.md](mise-package-manager.md)** for complete documentation, installation guide, and usage examples.
+
+Quick start:
+```bash
+# Already installed, just activate
+export PATH="/root/.local/bin:$PATH"
+eval "$(/root/.local/bin/mise activate bash)"
+
+# Install tools
+mise install npm:prettier@latest
+mise install usage@latest
+
+# List installed
+mise list
+```
+
 ## Files in This Repository
 
 - `README.md` - This overview document
 - `analyze-system.sh` - Automated system analysis script
 - `system-info.md` - Detailed system information (auto-generated)
 - `installed-packages.md` - Complete list of all 675 installed dpkg packages
+- `mise-package-manager.md` - Complete mise installation and usage guide
 
 ## Updates
 
