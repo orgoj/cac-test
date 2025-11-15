@@ -1,0 +1,14 @@
+# API Keys and Secrets
+.env
+.env.*
+!.env.example
+mcp.secrets.json
+*.key
+*.pem
+
+# Claude Code Local Settings
+.claude/settings.local.json
+
+# Temporary files
+*.tmp
+*.log
