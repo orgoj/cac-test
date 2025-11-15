@@ -5,240 +5,64 @@
 V Anthropic remote containeru:
 - ❌ Nemáte kontrolu nad inicializací containeru
 - ❌ Nemůžete nastavit environment variables před startem
-- ❌ Container je vytvo řen dynamicky z vašeho Git repo
-- ❌ Jakékoliv secrets v Gitu jsou kompromitované
+- ❌ Container je vytvořen dynamicky z vašeho Git repo
+- ❌ Nemůžete spouštět bash příkazy před inicializací
+- ❌ **Máte JEN: Git repo + prompt**
 
-## ✅ Řešení: Remote MCP Server
+## ✅ Jediné funkční řešení: Remote MCP Server
 
-**Koncept:** API klíče nejsou v containeru, ale na vašem serveru. Container se k němu jen připojí přes HTTPS.
+**Koncept:** API klíče NEJSOU v containeru, ale na VAŠEM serveru. Container se k němu jen připojí přes HTTPS.
 
 ### Architektura
 
 ```
 ┌─────────────────────────────────┐
 │ Anthropic Remote Container     │
+│ (vy NEMÁTE kontrolu)            │
 │                                 │
 │  Claude Code                    │
-│    ↓ HTTPS                      │
-│  MCP Client (v containeru)      │
-└────────────┬────────────────────┘
-             │
-             │ HTTPS + Auth
-             │
-┌────────────▼────────────────────┐
-│ VÁŠ Server (Vercel/Railway/etc)│
+│    │                            │
+│    ↓ čte .claude/mcp.json       │
+│  MCP Client                     │
+│    │                            │
+│    ↓ HTTPS připojení            │
+└────┼────────────────────────────┘
+     │
+     │ HTTPS + Auth (optional)
+     │
+┌────▼────────────────────────────┐
+│ VÁŠ Server                      │
+│ (Vercel/Railway/Fly.io/etc)     │
 │                                 │
 │  Remote MCP Server              │
 │    - API klíče (BRAVE, GITHUB)  │
-│    - OAuth token                │
-│    - Autentizace                │
+│    - Implementuje MCP protokol  │
+│    - Autentizace (optional)     │
 └─────────────────────────────────┘
 ```
 
 ---
 
-## Možnosti nasazení
+## Implementace: Remote MCP Server
 
-### Option 1: One-Time Secret URL (Nejjednodušší)
+### Krok 1: Deploy serveru s API klíči
 
-**Pro:** Žádný vlastní server
-**Proti:** Musíte generovat URL každou session
+Vyber si hosting provider a deployni MCP server:
 
-**Postup:**
+#### A) Vercel (doporučeno pro začátečníky)
 
-**1. Vytvořte session start hook:**
-```bash
-# .claude/hooks/session-start.sh
-#!/bin/bash
-
-# Stáhne API klíč z one-time secret URL
-if [ ! -z "$MCP_SECRET_URL" ]; then
-    API_KEY=$(curl -s "$MCP_SECRET_URL")
-    export BRAVE_API_KEY="$API_KEY"
-    echo "✓ API klíč načten z one-time URL"
-fi
-```
-
-**2. Před startem session:**
-- Jdi na https://onetimesecret.com
-- Vlož svůj API klíč
-- Nastav TTL na 10 minut
-- Zkopíruj URL
-
-**3. V Claude Code remote:**
-```bash
-export MCP_SECRET_URL="https://onetimesecret.com/secret/xxxxx"
-# Hook automaticky načte klíč
-```
-
-**Služby pro one-time secrets:**
-- https://onetimesecret.com (14 dní retention)
-- https://privnote.com (přečti jednou, vymaž)
-- https://snappass.io (vlastní TTL)
-
----
-
-### Option 2: Remote MCP Server (Nejprofesionálnější)
-
-**Pro:** Automatické, bezpečné, škálovatelné
-**Proti:** Vyžaduje deployment serveru
-
-#### A) Vercel Deployment
-
-**1. Vytvořte MCP server:**
-```typescript
-// api/mcp.ts
-import { MCPServer } from '@modelcontextprotocol/sdk';
-
-const server = new MCPServer({
-  name: "brave-search-remote",
-  version: "1.0.0"
-});
-
-// API klíč je v Vercel environment variables
-const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
-
-server.tool("search", async (query: string) => {
-  const response = await fetch("https://api.search.brave.com/res/v1/web/search", {
-    headers: {
-      "X-Subscription-Token": BRAVE_API_KEY
-    }
-  });
-  return response.json();
-});
-
-export default server.handler();
-```
-
-**2. Deploy na Vercel:**
-```bash
-vercel deploy
-# Přidej BRAVE_API_KEY do Vercel environment variables
-```
-
-**3. V `.claude/mcp.json`:**
-```json
-{
-  "mcpServers": {
-    "brave-search": {
-      "url": "https://your-app.vercel.app/api/mcp",
-      "transport": "http",
-      "headers": {
-        "Authorization": "Bearer your-server-auth-token"
-      }
-    }
-  }
-}
-```
-
-**✅ API klíč je na Vercelu, NE v containeru!**
-
-#### B) Railway / Fly.io Deployment
-
-Stejný princip, jen jiný hosting provider.
-
-#### C) Cloudflare Workers
-
-```javascript
-// worker.js
-export default {
-  async fetch(request) {
-    const BRAVE_API_KEY = env.BRAVE_API_KEY; // Cloudflare secret
-
-    // MCP server logika
-  }
-}
-```
-
----
-
-### Option 3: GitHub Actions jako Proxy
-
-**Koncept:** GitHub Actions má secrets, použijte je jako proxy.
-
-**1. Vytvořte workflow:**
-```yaml
-# .github/workflows/mcp-proxy.yml
-name: MCP Proxy
-on:
-  workflow_dispatch:
-    inputs:
-      query:
-        required: true
-
-jobs:
-  search:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Search
-        run: |
-          curl "https://api.search.brave.com/res/v1/web/search?q=${{ inputs.query }}" \
-            -H "X-Subscription-Token: ${{ secrets.BRAVE_API_KEY }}"
-```
-
-**2. V containeru:**
-```bash
-gh workflow run mcp-proxy.yml -f query="AI trends"
-```
-
-**⚠️ Limitace:** Rate limits GitHub Actions
-
----
-
-### Option 4: Proxy přes váš osobní server
-
-**Pokud máte VPS/homelab:**
-
-**1. Nastavte nginx proxy:**
-```nginx
-location /mcp/brave {
-    proxy_pass https://api.search.brave.com;
-    proxy_set_header X-Subscription-Token $BRAVE_API_KEY;
-}
-```
-
-**2. V containeru:**
-```json
-{
-  "mcpServers": {
-    "brave-search": {
-      "url": "https://your-server.com/mcp/brave"
-    }
-  }
-}
-```
-
----
-
-## Doporučení
-
-### Pro testování:
-→ **Option 1** (One-time secret URL) - nejrychlejší start
-
-### Pro produkci:
-→ **Option 2** (Remote MCP na Vercel/Railway) - nejčistší
-
-### Pro power users:
-→ **Option 4** (Vlastní proxy server) - plná kontrola
-
----
-
-## Implementace: Remote Brave Search Server
-
-**Kompletní příklad na Vercel:**
+**1. Vytvoř MCP server:**
 
 ```typescript
 // api/mcp/brave.ts
 import { StreamableHTTPServer } from '@modelcontextprotocol/sdk';
 
+// API klíč je v Vercel environment variables!
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY!;
 
 const server = new StreamableHTTPServer({
   name: "brave-search",
-  version: "1.0.0",
-  capabilities: {
-    tools: ["web_search"]
-  }
+  version: "1.0.0"
 });
 
 server.tool({
@@ -247,128 +71,320 @@ server.tool({
   inputSchema: {
     type: "object",
     properties: {
-      query: { type: "string" }
-    }
+      query: { type: "string", description: "Search query" },
+      count: { type: "number", description: "Number of results (default: 10)" }
+    },
+    required: ["query"]
   },
-  handler: async ({ query }) => {
-    const response = await fetch(
-      `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          "Accept": "application/json",
-          "X-Subscription-Token": BRAVE_API_KEY
-        }
+  handler: async ({ query, count = 10 }) => {
+    const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=${count}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "Accept": "application/json",
+        "X-Subscription-Token": BRAVE_API_KEY
       }
-    );
+    });
 
     if (!response.ok) {
       throw new Error(`Brave API error: ${response.status}`);
     }
 
-    return response.json();
+    return await response.json();
   }
 });
 
 export default server.handler();
 ```
 
-**Vercel config:**
-```json
-{
-  "env": {
-    "BRAVE_API_KEY": "@brave-api-key"
+**2. Deploy:**
+
+```bash
+vercel deploy
+```
+
+**3. Nastav environment variable na Vercelu:**
+
+```bash
+vercel env add BRAVE_API_KEY
+# Zadej svůj actual API klíč
+```
+
+**4. URL tvého serveru:**
+```
+https://your-project.vercel.app/api/mcp/brave
+```
+
+---
+
+#### B) Railway.app
+
+```typescript
+// server.ts
+import { createServer } from 'http';
+import { StreamableHTTPServer } from '@modelcontextprotocol/sdk';
+
+const BRAVE_API_KEY = process.env.BRAVE_API_KEY!;
+const PORT = process.env.PORT || 3000;
+
+const mcpServer = new StreamableHTTPServer({
+  name: "brave-search",
+  version: "1.0.0"
+});
+
+// ... stejná implementace jako výše ...
+
+const httpServer = createServer(mcpServer.handler());
+
+httpServer.listen(PORT, () => {
+  console.log(`MCP Server running on port ${PORT}`);
+});
+```
+
+**Deploy:**
+```bash
+railway up
+railway env set BRAVE_API_KEY=your-api-key
+```
+
+---
+
+#### C) Cloudflare Workers
+
+```typescript
+// worker.ts
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const BRAVE_API_KEY = env.BRAVE_API_KEY; // Cloudflare secret
+
+    // MCP server implementace
+    // ...
+
+    return new Response(JSON.stringify(result), {
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
 ```
 
-**V containeru (.claude/mcp.json):**
+---
+
+### Krok 2: Nakonfiguruj MCP v Git repo
+
+V tvém Git repo přidej do `.claude/mcp.json`:
+
 ```json
 {
   "mcpServers": {
     "brave-search": {
-      "url": "https://your-vercel-app.vercel.app/api/mcp/brave",
+      "url": "https://your-project.vercel.app/api/mcp/brave",
       "transport": "http"
     }
   }
 }
 ```
 
-**🎉 Hotovo! API klíč je bezpečně na Vercelu.**
+**To je všechno!**
 
 ---
 
-## Security Best Practices
+### Krok 3: Commit & Push
 
-### Server-side:
-- ✅ Použijte rate limiting
-- ✅ Implementujte autentizaci (Bearer token)
-- ✅ Logujte všechny requesty
-- ✅ Nastavte CORS správně
-- ✅ Rotujte auth tokeny pravidelně
-
-### Client-side (v containeru):
-- ✅ Auth token může být v `.claude/mcp.json` (není secret, jen autentizuje požadavky)
-- ✅ Používejte read-only tokeny kde možné
-- ✅ Nastavte krátké TTL pro tokeny
+```bash
+git add .claude/mcp.json
+git commit -m "Add remote Brave Search MCP server"
+git push
+```
 
 ---
 
-## Quick Start Guide
+### Krok 4: Spusť Claude Code session
 
-**Nejrychlejší způsob (5 minut):**
+1. Anthropic vytvoří container
+2. Naklonuje tvůj repo
+3. Přečte `.claude/mcp.json`
+4. **Připojí se k tvému serveru na Vercelu**
+5. ✅ API klíč je na Vercelu, NE v containeru!
 
-1. **Deploy na Vercel:**
-   ```bash
-   npx create-mcp-server@latest my-remote-mcp
-   cd my-remote-mcp
-   # Přidej Brave Search tool
-   vercel deploy
-   vercel env add BRAVE_API_KEY
-   ```
+---
 
-2. **V Git repo přidej:**
-   ```json
-   // .claude/mcp.json
-   {
-     "mcpServers": {
-       "brave": {
-         "url": "https://my-remote-mcp.vercel.app/mcp"
-       }
-     }
-   }
-   ```
+## Bezpečnost
 
-3. **Commit & Push**
+### Optional: Přidej autentizaci
 
-4. **Spusť Claude Code remote session**
-   - Container se připojí k tvému Vercel serveru
-   - API klíč je na Vercelu, ne v containeru
-   - ✅ Bezpečné!
+**Na serveru:**
+
+```typescript
+export default async function handler(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+  const expectedToken = process.env.MCP_AUTH_TOKEN;
+
+  if (authHeader !== `Bearer ${expectedToken}`) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // ... MCP server logika
+}
+```
+
+**V .claude/mcp.json:**
+
+```json
+{
+  "mcpServers": {
+    "brave-search": {
+      "url": "https://your-project.vercel.app/api/mcp/brave",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer your-auth-token-here"
+      }
+    }
+  }
+}
+```
+
+**⚠️ Poznámka:** Auth token v mcp.json NENÍ secret (je public v Gitu), jen kontroluje že requesty jdou z tvého containeru.
+
+### Best Practices:
+
+- ✅ Rate limiting na serveru
+- ✅ Logování všech requestů
+- ✅ CORS nastavení
+- ✅ Read-only API klíče kde možné
+- ✅ Monitoring usage
+
+---
+
+## Příklad: GitHub MCP Server
+
+```typescript
+// api/mcp/github.ts
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN!;
+
+server.tool({
+  name: "list_repos",
+  description: "List user repositories",
+  handler: async () => {
+    const response = await fetch('https://api.github.com/user/repos', {
+      headers: {
+        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json"
+      }
+    });
+
+    return await response.json();
+  }
+});
+```
+
+---
+
+## Quick Start: 5-minutový setup
+
+```bash
+# 1. Vytvoř projekt
+npx create-next-app@latest my-mcp-server
+cd my-mcp-server
+
+# 2. Nainstaluj SDK
+npm install @modelcontextprotocol/sdk
+
+# 3. Vytvoř api/mcp/brave.ts (viz kód výše)
+
+# 4. Deploy
+vercel deploy
+
+# 5. Nastav env var
+vercel env add BRAVE_API_KEY
+
+# 6. V tvém projektu přidej .claude/mcp.json
+# {
+#   "mcpServers": {
+#     "brave": {
+#       "url": "https://your-app.vercel.app/api/mcp/brave",
+#       "transport": "http"
+#     }
+#   }
+# }
+
+# 7. Commit & push
+git add .claude/mcp.json && git commit -m "Add remote MCP" && git push
+```
 
 ---
 
 ## Troubleshooting
 
-**Q: Co když Vercel free tier nestačí?**
-A: Railway, Fly.io, nebo Cloudflare Workers mají generous free tiery
+**Q: Server nefunguje**
+A: Zkontroluj Vercel logs: `vercel logs`
 
-**Q: Jak zabezpečit remote server?**
-A: Bearer token v headers, IP whitelist, nebo OAuth 2.1
+**Q: API klíč nefunguje**
+A: Ověř env vars: `vercel env ls`
 
-**Q: Můžu použít pro GitHub MCP?**
-A: Ano! GitHub Personal Access Token je na serveru, ne v containeru
+**Q: CORS error**
+A: Přidej CORS headers na server
 
-**Q: Co když nechci vlastní server?**
-A: Použij Option 1 (One-time secret URL) pro jednorázové použití
+**Q: Chci testovat lokálně**
+A: `vercel dev` + ngrok pro HTTPS tunnel
+
+---
+
+## Další možnosti
+
+### Multi-tool MCP Server
+
+Jeden server může mít více tools:
+
+```typescript
+server.tool({ name: "web_search", ... });
+server.tool({ name: "image_search", ... });
+server.tool({ name: "news_search", ... });
+```
+
+### Více serverů
+
+```json
+{
+  "mcpServers": {
+    "brave": {
+      "url": "https://your-app.vercel.app/api/mcp/brave"
+    },
+    "github": {
+      "url": "https://your-app.vercel.app/api/mcp/github"
+    }
+  }
+}
+```
+
+---
+
+## Proč JEN toto řešení funguje
+
+### ❌ Co NEFUNGUJE:
+
+1. **Session start hooks** - vyžadují bash příkazy PŘED startem
+2. **Environment variables** - nemůžeš je nastavit před inicializací containeru
+3. **One-time secrets** - vyžadují stažení v hooku
+4. **GitHub Actions proxy** - vyžadují `gh` CLI volání
+5. **Cokoliv co vyžaduje interakci** během session startu
+
+### ✅ Proč Remote MCP funguje:
+
+1. Container **POUZE přečte** `.claude/mcp.json` z Gitu
+2. **Automaticky se připojí** k URL v konfiguraci
+3. **Žádná bash interakce** není potřeba
+4. API klíče jsou **na tvém serveru**, ne v containeru
+5. **100% pasivní** z pohledu containeru
 
 ---
 
 ## Odkazy
 
-- [MCP Remote Servers Spec](https://modelcontextprotocol.io/docs/develop/connect-remote-servers)
-- [Vercel MCP Deployment](https://vercel.com/docs/mcp)
-- [One Time Secret](https://onetimesecret.com)
-- [Railway MCP Guide](https://docs.railway.app/guides/mcp)
+- [MCP Remote Servers Specification](https://modelcontextprotocol.io/docs/develop/connect-remote-servers)
+- [Vercel Deployment Guide](https://vercel.com/docs)
+- [Railway Deployment](https://docs.railway.app)
+- [Cloudflare Workers](https://workers.cloudflare.com)
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
 
 ---
 
