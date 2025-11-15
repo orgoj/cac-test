@@ -17,7 +17,8 @@ This repository contains comprehensive information about the Claude Code executi
 - **CPU:** 16 cores (Intel, Model 106)
 - **Memory:** 13 GB RAM (no swap)
 - **Disk:** 30 GB root filesystem
-- **IP Address:** 21.0.0.54
+- **Internal IP:** 21.0.0.54
+- **Public IP:** 104.155.178.59 (Google Cloud)
 
 ## Key Features
 
@@ -54,6 +55,10 @@ This repository contains comprehensive information about the Claude Code executi
 - **NVM:** Node Version Manager configured
 - **rbenv:** Ruby environment manager
 
+#### Network & Download Tools
+- **curl:** 8.5.0 (with OpenSSL/3.0.13, HTTP/2, many protocols)
+- **wget:** 1.21.4
+
 #### Available Binaries
 - `/usr/bin`: 1,055+ binaries
 - `/usr/local/bin`: 27+ binaries
@@ -65,6 +70,7 @@ This repository contains comprehensive information about the Claude Code executi
 - Git operations
 - File system read/write (as root)
 - Network access (via proxy)
+- Internet downloads (curl, wget)
 - Process execution
 - Package information query
 
@@ -89,10 +95,13 @@ IS_SANDBOX=yes
 
 ## Network Configuration
 
-- **IP Address:** 21.0.0.54
-- **Proxy:** Configured for HTTP/HTTPS traffic
+- **Internal IP:** 21.0.0.54 (container network)
+- **Public IP:** 104.155.178.59 (Google Cloud, load-balanced in 104.155.x.x range)
+- **Proxy Chain:** Traffic routed through 34.160.111.145 (Google proxy)
+- **Proxy:** Configured for HTTP/HTTPS traffic with JWT authentication
 - **DNS:** Available via `/etc/resolv.conf`
 - **No-Proxy Exceptions:** localhost, 127.0.0.1, *.google.com, *.googleapis.com
+- **Internet Access:** Full access via curl/wget through proxy
 
 ## File System
 
