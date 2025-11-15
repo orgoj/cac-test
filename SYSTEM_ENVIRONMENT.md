@@ -1,6 +1,6 @@
-# Claude Code Environment - System Overview
+# Claude Code Remote Environment - System Overview
 
-This repository contains comprehensive information about the Claude Code execution environment.
+This document contains comprehensive information about the Claude Code remote execution environment available at claude.ai/code.
 
 ## Quick Summary
 
