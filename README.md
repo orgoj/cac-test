@@ -20,6 +20,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 - **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills
 - **[SUBAGENT_MODEL_SELECTION.md](SUBAGENT_MODEL_SELECTION.md)** - Guide to dynamic model selection for subagents (Haiku/Sonnet/Opus)
 - **[MCP_SERVERS.md](MCP_SERVERS.md)** - MCP (Model Context Protocol) servers configuration and testing guide
+- **[REMOTE_MCP_SOLUTION.md](REMOTE_MCP_SOLUTION.md)** - Secure API key solutions for remote container (Remote MCP servers, one-time secrets)
 
 ### System Environment
 
