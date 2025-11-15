@@ -73,9 +73,9 @@ This document contains comprehensive information about the Claude Code remote ex
 - Internet downloads (curl, wget)
 - Process execution
 - Package information query
+- Package installation via `apt` (works successfully despite some warnings)
 
 ⚠️ **Limited/Restricted:**
-- Package installation (`apt` has permission issues)
 - `sudo` command (ownership issues)
 - Network utilities (`ip`, `ifconfig`, `netstat` not available)
 - Some system configuration
@@ -99,6 +99,24 @@ dpkg -l | grep ^ii              # List all installed packages
 dpkg -l | grep <package-name>   # Search for specific package
 dpkg -s <package-name>          # Show package details
 ```
+
+### Installing Additional Packages
+
+✅ **apt package installation WORKS** in this environment!
+
+You can install additional system packages using apt:
+```bash
+apt update                      # Update package lists (may show warnings, but works)
+apt install -y <package-name>   # Install packages
+apt search <keyword>            # Search for packages
+```
+
+**Example:**
+```bash
+apt install -y tree             # Successfully installs tree command
+```
+
+**Note:** While `apt update` may display some warnings about temporary files in `/tmp`, package installation with `apt install` works correctly and reliably.
 
 ## Environment Variables
 
@@ -172,7 +190,6 @@ This environment is suitable for:
 
 ## Limitations
 
-- Cannot install system packages via apt (permission restrictions)
 - Limited network diagnostic tools
 - No Docker daemon (docker CLI may be present but won't function)
 - No kubectl connection to clusters (CLI only)
