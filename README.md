@@ -1,15 +1,16 @@
-# Claude Code Documentation
+# Claude Code Remote Environment Documentation
 
-Comprehensive documentation for [Claude Code](https://claude.ai/code) - Anthropic's official AI-powered coding assistant.
+Documentation of the Claude Code remote execution environment available at [claude.ai/code](https://claude.ai/code).
 
-## About Claude Code
+## About This Repository
 
-Claude Code is an interactive CLI tool powered by Claude Sonnet 4.5 that helps with software engineering tasks including:
-- Code development and refactoring
-- Bug fixing and debugging
-- Repository analysis
-- Testing and documentation
-- Git operations
+This repository documents the **specific cloud environment** where Claude Code executes when accessed via the web interface. It contains:
+- System specifications and capabilities
+- Pre-installed tools and packages
+- Configuration discovered in this environment
+- Analysis scripts for exploring the environment
+
+**Note:** This is NOT general Claude Code documentation. For official Claude Code documentation, visit [docs.claude.com/claude-code](https://docs.claude.com/en/docs/claude-code/).
 
 ## Documentation Index
 
@@ -28,8 +29,8 @@ Claude Code is an interactive CLI tool powered by Claude Sonnet 4.5 that helps w
 
 ### Automation Scripts
 
-- **[analyze-system.sh](analyze-system.sh)** - Automated system analysis script
-- **[claude-info.sh](claude-info.sh)** - Claude environment information collector
+- **[analyze-system.sh](analyze-system.sh)** - System analysis script (generates system-info.md)
+- **[claude-info.sh](claude-info.sh)** - Extracts .claude directory configuration and settings
 
 ## Quick Start
 
@@ -66,9 +67,9 @@ Claude Code is an interactive CLI tool powered by Claude Sonnet 4.5 that helps w
 - **Official Docs:** [docs.claude.com/en/docs/claude-code/](https://docs.claude.com/en/docs/claude-code/)
 - **Help Command:** Type `/help` in Claude Code
 
-## Use Cases
+## What This Environment Supports
 
-This environment is optimized for:
+The Claude Code remote environment (at claude.ai/code) is optimized for:
 - Multi-language development projects
 - Building and compiling software
 - Web development with modern frameworks
@@ -99,6 +100,7 @@ CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE=cloud_default
 
 ---
 
+**Documentation Purpose:** Environment analysis of claude.ai/code remote execution environment
 **Last Updated:** 2025-11-15
 **Environment:** Claude Code Remote Cloud (Sandboxed)
 **Model:** Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
