@@ -34,48 +34,34 @@ Tento dokument popisuje nakonfigurované MCP (Model Context Protocol) servery v 
 
 ---
 
-### 2. Brave Search (@modelcontextprotocol/server-brave-search)
+### 2. DuckDuckGo Search (duckduckgo-mcp-server)
 
-**Účel:** Umožňuje vyhledávání na webu pomocí Brave Search API.
+**Účel:** Vyhledávání na webu pomocí DuckDuckGo (žádný API klíč není potřeba).
 
 **Funkce:**
-- Web search (vyhledávání na webu)
-- Local Points of Interest search (vyhledávání místních míst)
-- Image search (vyhledávání obrázků)
-- Video search (vyhledávání videí)
-- News search (vyhledávání zpráv)
-- AI-powered summarization (shrnutí pomocí AI)
+- Web search s DuckDuckGo
+- Privacy-friendly (žádné trackování)
+- Rate limit: 1 dotaz/sekundu, 15000 dotazů/měsíc
+- Konfigurovatelný počet výsledků (1-20)
+- SafeSearch režimy (strict/moderate/off)
 
 **Konfigurace:**
 ```json
-"brave-search": {
+"duckduckgo-search": {
   "command": "npx",
   "args": [
     "-y",
-    "@modelcontextprotocol/server-brave-search"
-  ],
-  "env": {
-    "BRAVE_API_KEY": "your-brave-api-key-here"
-  }
+    "duckduckgo-mcp-server"
+  ]
 }
 ```
 
-**Limity (free tier):**
-- 2,000 dotazů/měsíc zdarma
-- 1 dotaz/sekundu
+**Použití:**
+- Vyhledávání aktuálních informací na webu
+- Privacy-focused alternativa k Google
+- Žádná registrace nebo API klíč
 
-**Výhody:**
-- Vlastní nezávislý index (na rozdíl od DuckDuckGo)
-- Privacy-focused (na rozdíl od Google)
-- Oficiálně podporovaný Anthropic
-
-**Získání API klíče:**
-1. Navštivte https://brave.com/search/api/
-2. Zaregistrujte se zdarma
-3. Zkopírujte API klíč
-4. Nahraďte `your-brave-api-key-here` v konfiguraci
-
-**Zdroj:** https://github.com/modelcontextprotocol/servers
+**Zdroj:** https://github.com/nickclyde/duckduckgo-mcp-server
 
 ---
 
@@ -142,10 +128,10 @@ Tento dokument popisuje nakonfigurované MCP (Model Context Protocol) servery v 
 
 ## MCP servery komunikující s okolím
 
-Hlavní servery pro externí komunikaci:
+Nakonfigurované servery pro externí komunikaci (bez nutnosti API klíčů):
 
 1. **Context7** - Dokumentace a příklady kódu z online zdrojů
-2. **Brave Search** - Vyhledávání na webu
+2. **DuckDuckGo Search** - Vyhledávání na webu (privacy-friendly)
 3. **Fetch** - Stahování webového obsahu
 
 ## Testování MCP serverů
@@ -159,14 +145,14 @@ Jaké jsou nejnovější funkce v React 19?
 
 Claude by měl použít Context7 k získání aktuální dokumentace.
 
-### Test Brave Search
+### Test DuckDuckGo Search
 
 Zkuste:
 ```
 Vyhledej nejnovější trendy v AI development
 ```
 
-Claude by měl použít Brave Search k vyhledání aktuálních informací.
+Claude by měl použít DuckDuckGo k vyhledání aktuálních informací.
 
 ### Test Fetch
 
@@ -177,15 +163,89 @@ Stáhni obsah z https://example.com a shrň ho
 
 Claude by měl použít fetch server k získání obsahu.
 
-## Další dostupné MCP servery
+## Bezpečné ukládání API klíčů
 
-Další zajímavé servery pro komunikaci s okolím:
+Pokud potřebujete používat MCP servery s API klíči (jako Brave Search, GitHub), zde jsou **bezpečné způsoby**:
 
-- **Google Custom Search** - Vyhledávání přes Google (100 dotazů/den zdarma)
-- **Open-WebSearch** - Multi-engine search (Bing, DuckDuckGo, Brave, Baidu)
-- **GitHub MCP** - Integrace s GitHub API
-- **Slack MCP** - Integrace se Slack
-- **PostgreSQL MCP** - Připojení k PostgreSQL databázím
+### Metoda 1: Proměnné prostředí (DOPORUČENO)
+
+Místo ukládání klíče přímo v `mcp.json`, použijte proměnné prostředí:
+
+**1. Vytvořte soubor `.env` (přidejte do .gitignore!):**
+```bash
+# .env (NIKDY necommitujte tento soubor!)
+BRAVE_API_KEY=your-actual-api-key-here
+GITHUB_TOKEN=ghp_your-github-token-here
+```
+
+**2. V `mcp.json` odkazujte na proměnnou:**
+```json
+{
+  "mcpServers": {
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+**3. Načtěte `.env` při startu:**
+```bash
+# Linux/Mac
+export $(cat .env | xargs)
+```
+
+### Metoda 2: Systémové proměnné prostředí
+
+**Linux/Mac (.bashrc nebo .zshrc):**
+```bash
+export BRAVE_API_KEY="your-api-key"
+export GITHUB_TOKEN="ghp_your-token"
+```
+
+**Windows (PowerShell):**
+```powershell
+[System.Environment]::SetEnvironmentVariable('BRAVE_API_KEY', 'your-api-key', 'User')
+```
+
+### Metoda 3: Oddělený konfigurační soubor
+
+**1. Vytvořte `mcp.secrets.json` (přidejte do .gitignore!):**
+```json
+{
+  "BRAVE_API_KEY": "your-actual-key",
+  "GITHUB_TOKEN": "ghp_your-token"
+}
+```
+
+**2. V `mcp.json` použijte:**
+```json
+{
+  "mcpServers": {
+    "brave-search": {
+      "command": "sh",
+      "args": ["-c", "BRAVE_API_KEY=$(jq -r .BRAVE_API_KEY mcp.secrets.json) npx -y @modelcontextprotocol/server-brave-search"]
+    }
+  }
+}
+```
+
+### ⚠️ NIKDY:
+
+- ❌ Necommitujte API klíče do Gitu
+- ❌ Nesdílejte API klíče v public repozitářích
+- ❌ Neukládejte klíče přímo v `mcp.json` pokud je soubor verzovaný
+
+### ✅ VŽDY:
+
+- ✅ Přidejte `.env` a `mcp.secrets.json` do `.gitignore`
+- ✅ Používejte proměnné prostředí
+- ✅ Rotujte klíče pravidelně
+- ✅ Používejte read-only klíče kde je to možné
 
 ## Bezpečnostní poznámky
 
@@ -204,8 +264,10 @@ Další zajímavé servery pro komunikaci s okolím:
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Official MCP Servers Repository](https://github.com/modelcontextprotocol/servers)
 - [Context7 GitHub](https://github.com/upstash/context7)
-- [Brave Search MCP](https://github.com/brave/brave-search-mcp-server)
+- [DuckDuckGo MCP Server](https://github.com/nickclyde/duckduckgo-mcp-server)
 - [MCP Server List (LobeHub)](https://lobehub.com/mcp)
+- [Awesome MCP Servers](https://github.com/punkpeye/awesome-mcp-servers)
+- [Glama.ai - MCP Servers bez API klíčů](https://glama.ai/mcp/servers/search/mcp-servers-that-do-not-require-api-keys)
 
 ---
 
