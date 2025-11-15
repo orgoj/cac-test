@@ -308,14 +308,105 @@ Example: `src/services/process.ts:712`
 
 Tool results and user messages may include `<system-reminder>` tags with useful information added automatically by the system.
 
+## .claude Directory Configuration
+
+### Project Directory
+**Location**: `/home/user/cac-test/.claude`
+**Status**: ❌ Does not exist - no project-specific configuration
+
+### Global Directory
+**Location**: `/root/.claude`
+**Status**: ✅ Exists - global user configuration
+
+#### Active Hooks
+
+**Stop Hook** (`/root/.claude/stop-hook-git-check.sh`):
+- Runs before session termination
+- Checks for uncommitted changes (staged and unstaged)
+- Checks for untracked files
+- Checks for unpushed commits
+- Blocks exit (code 2) if work is not pushed to remote
+
+#### Global Settings
+**Location**: `/root/.claude/settings.json`
+
+```json
+{
+  "hooks": {
+    "Stop": [{
+      "matcher": "",
+      "hooks": [{
+        "type": "command",
+        "command": "~/.claude/stop-hook-git-check.sh"
+      }]
+    }]
+  },
+  "permissions": {
+    "allow": ["Skill"]
+  }
+}
+```
+
+#### Available Hook Types
+- **SessionStart**: Runs when session starts (useful for dependency installation)
+- **Stop**: Runs before session terminates (used for git checks)
+- **user-prompt-submit**: Runs when user submits prompt
+- Other hooks available per documentation
+
+#### Session Data
+- **Projects**: `/root/.claude/projects/-home-user-cac-test/`
+  - Agent execution logs (JSONL format)
+  - Session transcripts
+- **Shell Snapshots**: Bash command history snapshots
+- **Todos**: Session-specific todo tracking
+- **Statsig**: Analytics and feature flag cache
+
+#### Global Configuration File
+**Location**: `/root/.claude.json`
+
+Key settings:
+- Auto-updates enabled
+- Feature flags (Statsig gates)
+- User ID: `9b8692d13ebd66d92c14e7f82e763ccb09407c592ed3a3db0768fd6e10741cbe`
+- Project-specific settings (allowed tools, MCP servers, ignore patterns)
+
+#### Environment Variables
+
+**Claude Session**:
+- `CLAUDE_CODE_SESSION_ID`: `session_01V2fSS4ESX7tf91MXoW495k`
+- `CLAUDE_CODE_CONTAINER_ID`: Container identifier for current session
+- `CLAUDE_CODE_VERSION`: `2.0.34`
+- `CLAUDE_CODE_REMOTE`: `true` (running in cloud environment)
+- `CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE`: `cloud_default`
+- `CLAUDE_CODE_DEBUG`: `true`
+- `CLAUDE_CODE_ENTRYPOINT`: `remote`
+
+**Available in Hooks**:
+- `$CLAUDE_PROJECT_DIR`: Repository root path
+- `$CLAUDE_ENV_FILE`: Path to write session environment variables
+- `$CLAUDE_CODE_REMOTE`: Indicates if running in remote/web environment
+
+**Proxy Configuration**:
+- HTTP/HTTPS proxy configured for container networking
+- Global agent proxy settings for network access
+
 ## Skills Available
 
 ### session-start-hook
+**Location**: `/root/.claude/skills/session-start-hook/SKILL.md`
+
 Creating and developing startup hooks for Claude Code on the web. Use when user wants to:
 - Set up repository for Claude Code on web
 - Create SessionStart hook
 - Ensure project can run tests and linters during web sessions
-- Location: User-provided
+- Install dependencies automatically at session start
+- Configure environment variables for the session
+
+**Key Features**:
+- Async mode support (with configurable timeout)
+- Environment variable persistence via `$CLAUDE_ENV_FILE`
+- Idempotent and non-interactive design
+- Container state caching after hook completion
 
 ## Current Session Context
 
