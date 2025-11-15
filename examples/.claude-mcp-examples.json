@@ -1,0 +1,240 @@
+{
+  "_comment": "Příklady MCP konfigurace pro různé security úrovně",
+  "_warning": "TENTO SOUBOR NEDÁVEJ DO .claude/mcp.json! Jen reference.",
+
+  "level_1_no_auth_testing_only": {
+    "mcpServers": {
+      "brave-search": {
+        "url": "https://my-mcp.vercel.app/api/mcp",
+        "transport": "http"
+      }
+    },
+    "_security": "❌ Žádná autentizace - JEN PRO TESTOVÁNÍ",
+    "_risks": [
+      "Kdokoliv může volat server",
+      "Rate limit abuse",
+      "API cost overflow"
+    ]
+  },
+
+  "level_2_bearer_token_recommended": {
+    "mcpServers": {
+      "brave-search": {
+        "url": "https://my-mcp.vercel.app/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer Xk7mP9vQ2wN8jL4hR5tY6uI1oE3sA0gF9dH8cV7bN6m="
+        }
+      }
+    },
+    "_security": "✅ Bearer token autentizace",
+    "_note": "Token JE VEŘEJNÝ v Git repo - slouží jen k identifikaci legit requestů",
+    "_setup": [
+      "1. Generuj token: openssl rand -base64 32",
+      "2. Nastav na serveru: vercel env add MCP_AUTH_TOKEN",
+      "3. Přidej do headers zde",
+      "4. Commit & push"
+    ]
+  },
+
+  "level_3_multiple_servers": {
+    "mcpServers": {
+      "brave-search": {
+        "url": "https://my-mcp.vercel.app/api/mcp/brave",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer token-for-brave-abc123"
+        }
+      },
+      "github-api": {
+        "url": "https://my-mcp.vercel.app/api/mcp/github",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer token-for-github-xyz789"
+        }
+      },
+      "database-tools": {
+        "url": "https://my-mcp.vercel.app/api/mcp/database",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer token-for-db-def456"
+        }
+      }
+    },
+    "_security": "✅ Každý server má vlastní token",
+    "_note": "Lepší isolace - pokud jeden token leakne, ostatní servery jsou safe"
+  },
+
+  "level_4_with_custom_headers": {
+    "mcpServers": {
+      "brave-search": {
+        "url": "https://my-mcp.vercel.app/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer Xk7mP9vQ2wN8jL4hR5tY6uI1oE3sA0gF9dH8cV7bN6m=",
+          "X-Client-ID": "cac-test-project",
+          "X-Session-Context": "remote-container"
+        }
+      }
+    },
+    "_security": "✅ Extra metadata pro server-side logging",
+    "_note": "Server může logovat client-id pro lepší analytics"
+  },
+
+  "production_example": {
+    "mcpServers": {
+      "brave-search-prod": {
+        "url": "https://mcp-prod.your-company.com/api/brave",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer prod-token-Xk7mP9vQ2wN8jL4hR5tY6uI1oE3sA0",
+          "X-Environment": "production",
+          "X-Project-ID": "cac-test"
+        }
+      }
+    },
+    "_security": "✅ Production setup",
+    "_features": [
+      "Vlastní doména s SSL",
+      "Separate prod token",
+      "Environment tagging",
+      "Project ID tracking"
+    ],
+    "_monitoring": [
+      "Datadog APM",
+      "Sentry error tracking",
+      "Vercel Analytics",
+      "Custom metrics dashboard"
+    ]
+  },
+
+  "local_development": {
+    "mcpServers": {
+      "brave-search-local": {
+        "url": "https://localhost:3000/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer dev-token-local-123"
+        }
+      }
+    },
+    "_note": "⚠️ NEFUNGUJE v remote containeru!",
+    "_use_case": "Jen pro local development s 'vercel dev' + ngrok",
+    "_setup": [
+      "1. vercel dev (spustí na localhost:3000)",
+      "2. ngrok http 3000 (vytvoří HTTPS tunnel)",
+      "3. Použij ngrok URL místo localhost"
+    ]
+  },
+
+  "staging_vs_production": {
+    "mcpServers": {
+      "brave-staging": {
+        "url": "https://mcp-staging.vercel.app/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer staging-token-abc",
+          "X-Environment": "staging"
+        }
+      }
+    },
+    "_workflow": [
+      "1. Test změny ve staging branchi",
+      "2. Pokud OK, merge do main",
+      "3. Update config na production URL + token",
+      "4. Deploy"
+    ]
+  },
+
+  "multi_region_failover": {
+    "mcpServers": {
+      "brave-primary": {
+        "url": "https://mcp-us-east.vercel.app/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer region-us-token"
+        }
+      },
+      "brave-backup": {
+        "url": "https://mcp-eu-west.vercel.app/api/mcp",
+        "transport": "http",
+        "headers": {
+          "Authorization": "Bearer region-eu-token"
+        }
+      }
+    },
+    "_note": "⚠️ MCP protocol zatím nepodporuje automatic failover",
+    "_workaround": "Manuálně přepni URL při outage"
+  },
+
+  "_best_practices": {
+    "do": [
+      "✅ Vždy používej HTTPS (ne HTTP)",
+      "✅ Generuj silné random tokeny (min 32 bytes)",
+      "✅ Rotuj tokeny každých 30-90 dní",
+      "✅ Různé tokeny pro staging/production",
+      "✅ Loguj všechny requesty na serveru",
+      "✅ Monitor neautorizované pokusy",
+      "✅ Rate limiting na serveru"
+    ],
+    "dont": [
+      "❌ Nikdy API klíče (Brave, GitHub) do .claude/mcp.json",
+      "❌ Nikdy hesla nebo real secrets do headers",
+      "❌ Nikdy HTTP (jen HTTPS)",
+      "❌ Nikdy stejný token pro všechny projekty",
+      "❌ Nikdy dlouhodobé tokeny bez rotation plánu"
+    ]
+  },
+
+  "_token_management": {
+    "storage": {
+      "server_side_secrets": "Vercel env vars / AWS Secrets Manager",
+      "client_side_auth": ".claude/mcp.json (public v Gitu)",
+      "rotation_schedule": "Každých 30-90 dní",
+      "incident_response": "Okamžitě rotuj všechny tokeny"
+    },
+    "generation": {
+      "command": "openssl rand -base64 32",
+      "length": "32+ bytes (256+ bits)",
+      "format": "Base64 encoded random",
+      "example": "Xk7mP9vQ2wN8jL4hR5tY6uI1oE3sA0gF9dH8cV7bN6m="
+    }
+  },
+
+  "_troubleshooting": {
+    "401_unauthorized": [
+      "Zkontroluj token v .claude/mcp.json",
+      "Zkontroluj token v vercel env (vercel env ls)",
+      "Zkontroluj, že server používá stejný token",
+      "Zkontroluj logs: vercel logs | grep SECURITY"
+    ],
+    "429_rate_limit": [
+      "Počkej 15 minut",
+      "Nebo zvyš rate limit na serveru",
+      "Zkontroluj, že někdo neabusuje endpoint"
+    ],
+    "500_internal_error": [
+      "Zkontroluj server logs: vercel logs",
+      "Zkontroluj, že env vars jsou nastaveny",
+      "Zkontroluj, že BRAVE_API_KEY je validní"
+    ],
+    "connection_timeout": [
+      "Zkontroluj, že server běží: curl https://...",
+      "Zkontroluj Vercel status: status.vercel.com",
+      "Zkontroluj network/firewall"
+    ]
+  },
+
+  "_migration_checklist": {
+    "from_local_to_remote": [
+      "1. ✅ Deploy MCP server na Vercel",
+      "2. ✅ Nastav env vars (MCP_AUTH_TOKEN, API klíče)",
+      "3. ✅ Test server: curl s Bearer token",
+      "4. ✅ Update .claude/mcp.json s remote URL",
+      "5. ✅ Commit & push",
+      "6. ✅ Test v Claude Code session",
+      "7. ✅ Monitor logs prvních 24h",
+      "8. ✅ Setup alerting na errors"
+    ]
+  }
+}
