@@ -80,6 +80,26 @@ This repository contains comprehensive information about the Claude Code executi
 - Network utilities (`ip`, `ifconfig`, `netstat` not available)
 - Some system configuration
 
+## Installed Packages
+
+The environment comes with **675 pre-installed packages** including:
+
+- **Build essentials:** gcc, g++, make, cmake, autotools
+- **Compilers:** clang-18, rustc, javac
+- **Libraries:** OpenSSL, libcurl, zlib, PostgreSQL/MySQL libs
+- **Database clients:** postgresql-client, mysql-client, sqlite3
+- **System utilities:** curl, wget, git, vim, jq, rsync
+- **Development headers:** libc6-dev, libssl-dev, python3-dev
+
+For a complete list with versions, see [`installed-packages.md`](installed-packages.md).
+
+Query installed packages:
+```bash
+dpkg -l | grep ^ii              # List all installed packages
+dpkg -l | grep <package-name>   # Search for specific package
+dpkg -s <package-name>          # Show package details
+```
+
 ## Environment Variables
 
 Key environment variables indicate this is a Claude Code remote environment:
@@ -163,6 +183,7 @@ This environment is suitable for:
 - `README.md` - This overview document
 - `analyze-system.sh` - Automated system analysis script
 - `system-info.md` - Detailed system information (auto-generated)
+- `installed-packages.md` - Complete list of all 675 installed dpkg packages
 
 ## Updates
 
