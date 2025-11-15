@@ -4,17 +4,86 @@ Kompletní reference pro deployment a zabezpečení Remote MCP serverů v Anthro
 
 ---
 
-## 📁 Obsah tohoto adresáře
+## ⚠️ DŮLEŽITÉ: Zero Secrets v Gitu
 
-| Soubor | Popis | Začni zde |
-|--------|-------|-----------|
-| **deploy-guide.md** | Krok-za-krokem deployment guide (10 min) | ⭐ START |
-| **secure-mcp-server.ts** | Production-ready MCP server s autentizací | Zkopíruj do projektu |
-| **.claude-mcp-examples.json** | Příklady MCP config pro různé scenáře | Reference |
+**Nové doporučení:** Preferuj **IP Whitelisting** přístup, který nevyžaduje ŽÁDNÉ auth tokeny v `.claude/mcp.json`!
+
+Viz [../ZERO_SECRETS_IN_GIT.md](../ZERO_SECRETS_IN_GIT.md) pro detaily.
 
 ---
 
-## 🚀 Quick Start (10 minut)
+## 📁 Obsah tohoto adresáře
+
+| Soubor | Popis | Security Level | Začni zde |
+|--------|-------|----------------|-----------|
+| **ip-whitelisted-mcp-server.ts** | Zero-secrets server (IP whitelist only) | ⭐⭐⭐⭐⭐ | **DOPORUČENO** |
+| **find-anthropic-ips.md** | Jak zjistit Anthropic IP ranges | - | Před deployem |
+| **secure-mcp-server.ts** | Token-based auth server | ⭐⭐⭐⭐ | Fallback |
+| **deploy-guide.md** | Krok-za-krokem deployment guide (10 min) | - | Jak deployovat |
+| **.claude-mcp-examples.json** | Příklady MCP config pro různé scenáře | - | Reference |
+
+---
+
+## 🚀 Quick Start: Zero Secrets (DOPORUČENO)
+
+### Přístup s IP Whitelisting - Žádné tokeny v Gitu!
+
+**1. Zjisti Anthropic IP ranges**
+
+Viz [find-anthropic-ips.md](./find-anthropic-ips.md) - doporučená metoda: experimentální zjištění
+
+**2. Zkopíruj server kód**
+
+```bash
+# Vytvoř projekt
+npx create-next-app@latest my-mcp-server
+cd my-mcp-server
+
+# Zkopíruj IP-whitelisted server
+mkdir -p pages/api/mcp
+cp ../ip-whitelisted-mcp-server.ts pages/api/mcp/index.ts
+
+# Install dependencies
+npm install @modelcontextprotocol/sdk ipaddr.js
+```
+
+**3. Update IP ranges**
+
+Edituj `pages/api/mcp/index.ts`:
+```typescript
+const ANTHROPIC_IP_RANGES = [
+  '52.20.0.0/14',  // <- Tvoje zjištěné ranges
+  '54.0.0.0/8',
+  // ... další
+];
+```
+
+**4. Deploy**
+
+```bash
+npx vercel
+npx vercel env add BRAVE_API_KEY  # Jen API klíč, žádný auth token!
+npx vercel --prod
+```
+
+**5. Nakonfiguruj Claude - ŽÁDNÝ TOKEN!**
+
+```json
+// .claude/mcp.json
+{
+  "mcpServers": {
+    "brave": {
+      "url": "https://your-app.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+✅ **Zero secrets v Gitu!**
+
+---
+
+## 🔐 Alternative: Token-based (pokud nemůžeš použít IP whitelist)
 
 ### 1. Přečti Deploy Guide
 
