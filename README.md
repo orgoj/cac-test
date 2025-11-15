@@ -20,7 +20,12 @@ This repository documents the **specific cloud environment** where Claude Code e
 - **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills
 - **[SUBAGENT_MODEL_SELECTION.md](SUBAGENT_MODEL_SELECTION.md)** - Guide to dynamic model selection for subagents (Haiku/Sonnet/Opus)
 - **[MCP_SERVERS.md](MCP_SERVERS.md)** - MCP (Model Context Protocol) servers configuration and testing guide
-- **[REMOTE_MCP_SOLUTION.md](REMOTE_MCP_SOLUTION.md)** - Secure API key solutions for remote container (Remote MCP servers, one-time secrets)
+- **[ALL_OPTIONS_HONEST_ASSESSMENT.md](ALL_OPTIONS_HONEST_ASSESSMENT.md)** - **START HERE** - Upřímný přehled všech 9 možností pro API klíče v remote containeru
+- **[REMOTE_MCP_SOLUTION.md](REMOTE_MCP_SOLUTION.md)** - Remote MCP server řešení (základní koncept)
+- **[COMPLETE_SOLUTION.md](COMPLETE_SOLUTION.md)** - Kompletní implementační guide
+- **[QUICK_IP_DISCOVERY.md](QUICK_IP_DISCOVERY.md)** - Jak zjistit Anthropic IPs (3 metody)
+- **[ZERO_SECRETS_IN_GIT.md](ZERO_SECRETS_IN_GIT.md)** - Zero-secrets přístupy (IP whitelist, atd.)
+- **[MCP_SECURITY_GUIDE.md](MCP_SECURITY_GUIDE.md)** - Bezpečnostní levels a best practices
 
 ### System Environment
 
