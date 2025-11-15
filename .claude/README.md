@@ -25,14 +25,12 @@ MCP (Model Context Protocol) umožňuje Claude Code připojit se k externím dat
 
 Po restartu Claude Code budou tyto MCP servery automaticky dostupné. Můžete je otestovat pomocí příkazů, které využívají jejich schopnosti.
 
-## Další možnosti
+**POZOR**: Fetch server byl opraven z `@modelcontextprotocol/server-fetch` (neexistující Node.js balíček) na `mcp-server-fetch` (Python balíček spouštěný přes `uvx`).
 
-Další dostupné MCP servery:
-- `@modelcontextprotocol/server-github` - GitHub integrace
-- `@modelcontextprotocol/server-sqlite` - SQLite databáze
-- `@modelcontextprotocol/server-postgres` - PostgreSQL databáze
-- Context7 - pokročilé code context nástroje
-- Vlastní MCP servery přes HTTP nebo stdio
+## Kompletní dokumentace
+
+Pro podrobný návod na používání MCP v Claude Code, viz:
+- **[MCP_USAGE.md](../MCP_USAGE.md)** - Kompletní průvodce používáním MCP
 
 ## Reference
 
