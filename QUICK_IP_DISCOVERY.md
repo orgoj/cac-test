@@ -93,62 +93,25 @@ const ANTHROPIC_IP_RANGES = [
 
 ---
 
-## Metoda 2: Adaptive Server (NEJJEDNODUŠŠÍ)
+## Metoda 2: Progressive Whitelist (START ŠIROCE, ZÚŽI POSTUPNĚ)
 
-**Koncept:** Server si sám "naučí" whitelisted IPs při prvním requestu.
+**Koncept:** Start s širokými AWS IP ranges, postupně zužuj basované na skutečných IPs v lozích.
 
-### Krok 1: Deploy adaptive server
+**✅ Zero secrets v Git od začátku!**
+
+### Krok 1: Deploy s AWS ranges
 
 ```bash
-# Zkopíruj adaptive-mcp-server.ts z examples/
-cp examples/adaptive-mcp-server.ts pages/api/mcp/index.ts
+# Zkopíruj progressive-whitelist-mcp-server.ts
+cp examples/progressive-whitelist-mcp-server.ts pages/api/mcp/index.ts
 
 # Deploy
 npx vercel
-
-# Nastav env vars
 npx vercel env add BRAVE_API_KEY
-npx vercel env add ONE_TIME_CODE
-# Zadej: bootstrap-12345 (nebo jiný secret)
+npx vercel env add ADMIN_TOKEN  # pro monitoring (optional)
 ```
 
-### Krok 2: První request s one-time code
-
-V projektu vytvoř `.claude/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "brave": {
-      "url": "https://your-app.vercel.app/api/mcp",
-      "transport": "http",
-      "headers": {
-        "X-One-Time-Code": "bootstrap-12345"
-      }
-    }
-  }
-}
-```
-
-### Krok 3: Commit, push, test
-
-```bash
-git add .claude/mcp.json
-git commit -m "Add adaptive MCP (with bootstrap code)"
-git push
-
-# Spusť Claude Code session
-# První request: Server whitelistne tvoji IP
-# Zkontroluj logy:
-vercel logs | grep "New IP whitelisted"
-
-# Výstup:
-# [SECURITY] 🎉 New IP whitelisted: { ip: '52.20.123.45', ... }
-```
-
-### Krok 4: Smaž bootstrap code
-
-Teď když je IP whitelistu, smaž one-time code z konfigurace:
+### Krok 2: Config BEZ JAKÝCHKOLIV SECRETS
 
 ```json
 {
@@ -162,17 +125,53 @@ Teď když je IP whitelistu, smaž one-time code z konfigurace:
 ```
 
 ```bash
-git commit -am "Remove bootstrap code (IP whitelisted)"
+git add .claude/mcp.json
+git commit -m "Add MCP (zero secrets)"
 git push
 ```
 
-**✅ Zero secrets v Gitu!**
+### Krok 3: Použij & sleduj real IPs
+
+```bash
+# Spusť Claude Code sessions
+# Server trackuje všechny real IPs
+
+# Zkontroluj observed IPs
+vercel logs | grep "New Anthropic IP observed"
+
+# Výstup:
+# [TRACKING] 🆕 New Anthropic IP observed: {
+#   ip: '52.20.123.45',
+#   allObserved: ['52.20.123.45', '52.20.123.46']
+# }
+```
+
+### Krok 4: Zúži ranges (optional)
+
+Po několika sessionách:
+
+```typescript
+// Původní (široké)
+const INITIAL_IP_RANGES = [
+  '52.20.0.0/14',  // Celý AWS range
+  '54.80.0.0/13',
+];
+
+// Zúžené (basované na observed IPs)
+const INITIAL_IP_RANGES = [
+  '52.20.123.0/24',  // Jen skutečně používaný subnet
+];
+```
 
 **Výhody:**
-- ✅ Nevyžaduje předchozí znalost IP
-- ✅ Automaticky whitelistuje při prvním použití
-- ✅ Bootstrap code jen v první verzi (smažeš po první session)
-- ✅ Pak již žádné credentials v Gitu
+- ✅ Zero secrets v Git od začátku
+- ✅ Funguje okamžitě (AWS ranges)
+- ✅ Postupné zpřísňování basované na real data
+- ✅ Tracking real IPs pro budoucí optimalizaci
+
+**Nevýhody:**
+- ⚠️ Široké ranges na začátku (zahrnují i jiné AWS uživatele)
+- ⚠️ Není ideální security na začátku
 
 ---
 
@@ -260,62 +259,72 @@ npx vercel --prod
 
 ## Srovnání metod
 
-| Metoda | Setup Time | Security Risk | Zero Secrets |
-|--------|------------|---------------|--------------|
-| **1. Discovery Endpoint** | 5 min | ✅ Low | ✅ Yes |
-| **2. Adaptive Server** | 10 min | ✅ Low | ✅ Yes (po bootstrap) |
-| **3. Permissive Start** | 5 min | ❌ High (dočasně) | ✅ Yes |
+| Metoda | Setup Time | Security Risk | Zero Secrets (od začátku) | Doporučení |
+|--------|------------|---------------|---------------------------|------------|
+| **1. Discovery Endpoint** | 5 min discovery + 5 min deploy | ✅ Low | ✅ Yes | ⭐⭐⭐⭐⭐ BEST |
+| **2. Progressive Whitelist** | 5 min | ⚠️ Medium (široké ranges) | ✅ Yes | ⭐⭐⭐⭐ Good |
+| **3. Permissive Start** | 5 min | ❌ High (dočasně) | ✅ Yes | ⭐⭐ Last resort |
 
-**Doporučení:**
-- **Pro produkci:** Metoda 1 nebo 2
-- **Pro rychlý test:** Metoda 1
-- **Pro production bez předchozích znalostí:** Metoda 2
+**Jasné doporučení:**
+- **Pro produkci:** Metoda 1 (Discovery → Static whitelist)
+- **Pro rychlý start:** Metoda 2 (Progressive whitelist)
+- **Nikdy nepoužívej:** Adaptive server s bootstrap code v Gitu!
 
 ---
 
-## Praktický workflow: Metoda 2 (Adaptive)
+## Praktický workflow: Metoda 1 (Discovery → Static) - DOPORUČENO
 
 ```bash
-# === SETUP (JEDNOU) ===
+# === FÁZE 1: DISCOVERY (5 min) ===
 
-# 1. Deploy adaptive server
-npx create-next-app my-mcp && cd my-mcp
-cp path/to/adaptive-mcp-server.ts pages/api/mcp/index.ts
-npm install @modelcontextprotocol/sdk
-npx vercel
-npx vercel env add BRAVE_API_KEY
-npx vercel env add ONE_TIME_CODE  # např. "init-xyz789"
-npx vercel env add ADMIN_TOKEN    # např. "admin-abc123" (optional)
-
-# 2. První config S bootstrap code
-cat > .claude/mcp.json << 'EOF'
-{
-  "mcpServers": {
-    "brave": {
-      "url": "https://my-mcp.vercel.app/api/mcp",
-      "headers": {
-        "X-One-Time-Code": "init-xyz789"
-      }
-    }
-  }
+# 1. Deploy discovery endpoint
+mkdir ip-discovery && cd ip-discovery
+cat > api/discover.ts << 'EOF'
+export default async function handler(req: Request) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  console.log('[IP-DISCOVERY]', ip, new Date().toISOString());
+  return new Response(JSON.stringify({
+    yourIp: ip,
+    timestamp: new Date().toISOString()
+  }), {
+    headers: { 'Content-Type': 'application/json' }
+  });
 }
 EOF
 
-git add .claude/mcp.json
-git commit -m "Add MCP with bootstrap"
-git push
+npx vercel
 
-# === PRVNÍ SESSION ===
+# 2. Z Claude Code zavolej endpoint
+curl https://your-discovery.vercel.app/api/discover
 
-# 3. Spusť Claude Code
-# Server whitelistne IP automaticky
+# Nebo sleduj logy
+vercel logs --follow
 
-# 4. Zkontroluj logy
-vercel logs | grep "New IP whitelisted"
+# Výstup:
+# [IP-DISCOVERY] 52.20.123.45 2025-11-15T...
 
-# === CLEANUP ===
+# 3. Opakuj několikrát (různé sessions) pro zjištění všech IPs
 
-# 5. Smaž bootstrap code
+# 4. Zjisti CIDR ranges
+whois 52.20.123.45 | grep CIDR
+# CIDR: 52.20.0.0/14
+
+# === FÁZE 2: PRODUCTION MCP SERVER (5 min) ===
+
+# 5. Deploy MCP server s pevnými IP ranges
+npx create-next-app my-mcp && cd my-mcp
+npm install @modelcontextprotocol/sdk ipaddr.js
+
+# Zkopíruj ip-whitelisted-mcp-server.ts
+cp path/to/ip-whitelisted-mcp-server.ts pages/api/mcp/index.ts
+
+# Update IP ranges (basované na discovery)
+# const ANTHROPIC_IP_RANGES = ['52.20.0.0/14'];
+
+npx vercel
+npx vercel env add BRAVE_API_KEY
+
+# 6. Config - ZERO SECRETS!
 cat > .claude/mcp.json << 'EOF'
 {
   "mcpServers": {
@@ -326,13 +335,14 @@ cat > .claude/mcp.json << 'EOF'
 }
 EOF
 
-git commit -am "Remove bootstrap (IP whitelisted)"
+git add .claude/mcp.json
+git commit -m "Add MCP (zero secrets, static IP whitelist)"
 git push
 
 # === HOTOVO ===
-# ✅ Zero secrets v Gitu
-# ✅ IP automaticky whitelistnutá
-# ✅ Další sessions: bez jakékoliv autentizace
+# ✅ Zero secrets v Gitu (od začátku!)
+# ✅ Pevný IP whitelist (nejvyšší security)
+# ✅ Žádné dočasné credentials
 ```
 
 ---
