@@ -55,9 +55,9 @@ This repository documents the **specific cloud environment** where Claude Code e
 - Network access via proxy
 - File system read/write operations
 - Process execution
+- Package installation via apt
 
 **Limited:**
-- Package installation via apt (permission restrictions)
 - Network diagnostic tools
 - System configuration changes
 
