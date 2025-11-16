@@ -131,9 +131,15 @@ Based on the configuration and skill documentation, Claude Code supports these h
 
 ## Skills
 
-### session-start-hook Skill
+Claude Code has access to project-specific skills that provide specialized capabilities and domain knowledge. In this environment, the following skills are available:
+
+### Available Project Skills
+
+#### 1. session-start-hook
 
 **Location**: `$HOME/.claude/skills/session-start-hook/SKILL.md`
+
+**Type**: User skill
 
 **Name**: `startup-hook-skill`
 
@@ -185,6 +191,30 @@ The skill documentation mentions support for:
 6. Validate linter functionality
 7. Validate test execution
 8. Commit and push
+
+#### 2. flutter-development
+
+**Location**: `.claude/skills/flutter-development/SKILL.md`
+
+**Type**: Managed skill
+
+**Name**: `flutter-development`
+
+**Description**: Build cross-platform mobile apps with Flutter and Dart. Use when creating mobile applications, working with Flutter projects, designing UIs with widgets, implementing state management (Provider/BLoC), handling navigation, or when user mentions Flutter, Dart, mobile app development, iOS/Android apps, or Material Design.
+
+**Use Cases**:
+- Creating new Flutter mobile applications
+- Designing UIs with Flutter widgets
+- Implementing state management patterns (Provider, BLoC)
+- Handling navigation between screens
+- Working with Material Design components
+- Cross-platform iOS/Android development
+
+**When to Use**:
+- User mentions Flutter, Dart, or mobile app development
+- Building iOS or Android applications
+- Working with Material Design or Cupertino widgets
+- Implementing mobile app features and functionality
 
 ## Runtime Data
 
