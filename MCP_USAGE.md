@@ -364,7 +364,7 @@ Claude, jaké preference jsi si o mně zapamatoval?
 - [MCP Dokumentace](https://modelcontextprotocol.io/)
 - [Oficiální MCP servery](https://github.com/modelcontextprotocol/servers)
 - [MCP SDK](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
-- [Claude Code dokumentace](https://docs.claude.com/en/docs/claude-code)
+- [Claude Code dokumentace](https://code.claude.com/docs/en/claude-code-on-the-web)
 
 ## Další kroky
 

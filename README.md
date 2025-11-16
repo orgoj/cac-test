@@ -10,7 +10,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 - Configuration discovered in this environment
 - Analysis scripts for exploring the environment
 
-**Note:** This is NOT general Claude Code documentation. For official Claude Code documentation, visit [docs.claude.com/claude-code](https://docs.claude.com/en/docs/claude-code/).
+**Note:** This is NOT general Claude Code documentation. For official Claude Code on the web documentation, visit [code.claude.com/docs/en/claude-code-on-the-web](https://code.claude.com/docs/en/claude-code-on-the-web).
 
 ## Documentation Index
 
@@ -49,10 +49,11 @@ This repository documents the **specific cloud environment** where Claude Code e
 
 ### Available Development Tools
 
-- **Languages:** Python 3.11, Node.js 22, Java 21, Go 1.24, Ruby 3.3, PHP 8.4, Rust 1.91
+- **Languages:** Python 3.11 (with pip, poetry), Node.js (Latest LTS versions with npm, yarn, pnpm, bun), Java 21, Go 1.24, Ruby 3.1.6/3.2.6/3.3.6 (default: 3.3.6, managed by rbenv), PHP 8.4, Rust 1.91
 - **Build Tools:** GCC 13.3, CMake 3.28, Make 4.3, Maven, Gradle
 - **Version Control:** Git 2.43
 - **Package Managers:** npm, pip, cargo, mise
+- **Databases:** PostgreSQL 16, Redis 7.0
 
 ### Key Features
 
@@ -71,7 +72,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 ## Getting Help
 
 - **Documentation Issues:** [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues)
-- **Official Docs:** [docs.claude.com/en/docs/claude-code/](https://docs.claude.com/en/docs/claude-code/)
+- **Official Docs:** [code.claude.com/docs/en/claude-code-on-the-web](https://code.claude.com/docs/en/claude-code-on-the-web)
 - **Help Command:** Type `/help` in Claude Code
 
 ## What This Environment Supports
