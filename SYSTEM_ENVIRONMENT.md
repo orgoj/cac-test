@@ -31,12 +31,12 @@ This document contains comprehensive information about the Claude Code remote ex
 ### Development Tools Available
 
 #### Programming Languages & Runtimes
-- **Python:** 3.11.14 (`/usr/local/bin/python3`)
-- **Node.js:** v22.21.1 (`/opt/node22/bin/node`)
+- **Python:** 3.11.14 (`/usr/local/bin/python3`) with pip, poetry, and common scientific libraries
+- **Node.js:** Latest LTS versions with npm, yarn, pnpm, and bun (current: v22.21.1 at `/opt/node22/bin/node`)
 - **NPM:** 10.9.4
 - **Java:** OpenJDK 21.0.8 (`/usr/bin/java`)
 - **Go:** 1.24.7 (`/usr/local/go/bin/go`)
-- **Ruby:** 3.3.6 (`/usr/local/bin/ruby`)
+- **Ruby:** 3.1.6, 3.2.6, 3.3.6 (default: 3.3.6 at `/usr/local/bin/ruby`) with gem, bundler, and rbenv for version management
 - **PHP:** 8.4.14 (`/usr/bin/php`)
 - **Rust:** 1.91.1 (rustc + cargo)
 - **Perl:** 5.38.2
@@ -58,6 +58,10 @@ This document contains comprehensive information about the Claude Code remote ex
 #### Network & Download Tools
 - **curl:** 8.5.0 (with OpenSSL/3.0.13, HTTP/2, many protocols)
 - **wget:** 1.21.4
+
+#### Databases
+- **PostgreSQL:** Version 16
+- **Redis:** Version 7.0
 
 #### Available Binaries
 - `/usr/bin`: 1,055+ binaries
