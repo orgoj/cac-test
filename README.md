@@ -16,9 +16,10 @@ This repository documents the **specific cloud environment** where Claude Code e
 
 ### Core Documentation
 
+- **[CLAUDE.md](CLAUDE.md)** - Pravidla pro práci s tímto repozitářem a strukturu dokumentace
 - **[CLAUDE_CONFIGURATION.md](CLAUDE_CONFIGURATION.md)** - Complete overview of Claude Code capabilities, tools, and operational instructions
-- **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills
-- **[docs/](docs/)** - Additional documentation (tool-specific issues, troubleshooting guides)
+- **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills (including available project skills)
+- **[PRPM_PROXY_ISSUE.md](PRPM_PROXY_ISSUE.md)** - Detailed analysis of DNS resolution issue with PRPM in proxy environments
 - **[SUBAGENT_MODEL_SELECTION.md](SUBAGENT_MODEL_SELECTION.md)** - Guide to dynamic model selection for subagents (Haiku/Sonnet/Opus)
 - **[MCP_SERVERS.md](MCP_SERVERS.md)** - MCP (Model Context Protocol) servers configuration and testing guide
 - **[ALL_OPTIONS_HONEST_ASSESSMENT.md](ALL_OPTIONS_HONEST_ASSESSMENT.md)** - **START HERE** - Upřímný přehled všech 9 možností pro API klíče v remote containeru
