@@ -10,7 +10,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 - Configuration discovered in this environment
 - Analysis scripts for exploring the environment
 
-**Note:** This is NOT general Claude Code documentation. For official Claude Code documentation, visit [docs.claude.com/claude-code](https://docs.claude.com/en/docs/claude-code/).
+**Note:** This is NOT general Claude Code documentation. For official Claude Code on the web documentation, visit [code.claude.com/docs/en/claude-code-on-the-web](https://code.claude.com/docs/en/claude-code-on-the-web).
 
 ## Documentation Index
 
@@ -72,7 +72,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 ## Getting Help
 
 - **Documentation Issues:** [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues)
-- **Official Docs:** [docs.claude.com/en/docs/claude-code/](https://docs.claude.com/en/docs/claude-code/)
+- **Official Docs:** [code.claude.com/docs/en/claude-code-on-the-web](https://code.claude.com/docs/en/claude-code-on-the-web)
 - **Help Command:** Type `/help` in Claude Code
 
 ## What This Environment Supports
