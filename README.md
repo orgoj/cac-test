@@ -18,6 +18,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 
 - **[CLAUDE_CONFIGURATION.md](CLAUDE_CONFIGURATION.md)** - Complete overview of Claude Code capabilities, tools, and operational instructions
 - **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills
+- **[docs/](docs/)** - Additional documentation (tool-specific issues, troubleshooting guides)
 - **[SUBAGENT_MODEL_SELECTION.md](SUBAGENT_MODEL_SELECTION.md)** - Guide to dynamic model selection for subagents (Haiku/Sonnet/Opus)
 - **[MCP_SERVERS.md](MCP_SERVERS.md)** - MCP (Model Context Protocol) servers configuration and testing guide
 - **[ALL_OPTIONS_HONEST_ASSESSMENT.md](ALL_OPTIONS_HONEST_ASSESSMENT.md)** - **START HERE** - Upřímný přehled všech 9 možností pro API klíče v remote containeru
