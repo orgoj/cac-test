@@ -178,11 +178,11 @@ EOF
 
 - **Environment:** Claude Code container (sandbox)
 - **Node.js version:** v22.21.1
-- **npm version:** 10.x
+- **npm version:** 10.9.4
 - **OS:** Linux (container)
 - **Proxy:** HTTP proxy at 21.0.0.93:15004
 - **DNS:** Direct DNS resolution not available
-- **prpm version:** latest (installed via npm)
+- **prpm version:** 1.0.4 (latest as of 2025-11-17)
 
 ## Related Issues
 
@@ -248,6 +248,44 @@ See full analysis: [link to this documentation]
 - PRPM Website: https://prpm.dev
 - Claude Agent Skills Documentation: https://docs.claude.com/en/docs/agents-and-tools/agent-skills
 - Node.js proxy issues: https://github.com/nodejs/undici/issues?q=proxy
+
+## Testing Update (2025-11-17)
+
+### Tested Workarounds
+
+**1. Global-agent proxy patch**
+```bash
+npm install -g global-agent
+GLOBAL_AGENT_FORCE_GLOBAL_AGENT=true NODE_OPTIONS="-r /opt/node22/lib/node_modules/global-agent/bootstrap.js" prpm search flutter
+```
+**Result:** ❌ Still fails with `fetch failed` error
+
+**2. Disable telemetry**
+```bash
+prpm telemetry disable
+prpm search flutter
+```
+**Result:** ⚠️ Partially helps - eliminates PostHog errors but main registry access still fails
+
+### Current Status (2025-11-17)
+
+- **prpm version:** 1.0.4
+- **Installation:** ✅ Works perfectly
+- **Telemetry disable:** ⚠️ Reduces error noise but doesn't fix core issue
+- **Global-agent workaround:** ❌ Does not work
+- **Main functionality:** ❌ Still broken due to DNS resolution before proxy application
+
+### Recommendation
+
+**Best current workaround:**
+1. Disable telemetry to reduce error output:
+   ```bash
+   prpm telemetry disable
+   ```
+2. Use manual Skill creation as documented in the workaround section above
+3. Browse packages at https://prpm.dev and create `.claude/skills/` directories manually
+
+**The core issue remains:** prpm uses Node.js `undici`/`fetch()` which performs DNS lookup before applying HTTP proxy configuration. This is a fundamental architectural issue that requires changes to prpm's HTTP client implementation.
 
 ## Conclusion
 
