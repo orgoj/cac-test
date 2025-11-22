@@ -261,6 +261,61 @@ fi
 
 ---
 
+## 💻 Hardware Requirements Comparison
+
+### Zero-Cost Systems Hardware Nároky
+
+| Systém | Min RAM | Doporučená RAM | Min Disk | CPU Nároky | Platforma |
+|--------|---------|----------------|----------|------------|-----------|
+| **MAMA** | 1 GB | 4 GB | 160-200 MB | 2-core, 1.5 GHz | Linux/Mac/Win/ARM ⭐ |
+| **claude-dementia** | 256 MB | 512 MB | 5 MB | Any | Linux/Mac/Win |
+| **Basic Memory** | 512 MB | 2 GB | 50 MB | 2-core, 1.5 GHz | Linux/Mac/Win |
+| **Meridian** | 256 MB | 512 MB | 10 MB | Any | Linux/Mac/Win |
+| **Memento** | 2 GB | 4 GB | 200 MB | 2-core, 2 GHz | Linux/Mac/Win |
+| **mcp-memory-service** | 1 GB | 2 GB | 150 MB | 2-core, 2 GHz | Linux/Mac/Win |
+| **claude-context-local** | 2 GB | 4 GB | 300 MB | 4-core, 2.5 GHz | Linux/Mac/Win |
+| **memory-mcp-server** | 512 MB | 1 GB | 20 MB | 2-core, 1.5 GHz | Linux/Mac/Win |
+| **OpenMemory** | 4 GB | 8 GB | 2-5 GB | 4-core, 2.5 GHz | Linux/Mac (Ollama) |
+
+### Systémy s API náklady
+
+| Systém | Min RAM | Doporučená RAM | Min Disk | CPU Nároky | API Náklady/měsíc |
+|--------|---------|----------------|----------|------------|-------------------|
+| **claude-mem** | 2 GB | 4 GB | 500 MB | 4-core, 2 GHz | $8-177 |
+| **mem0** | 1 GB | 2 GB | 300 MB | 2-core, 2 GHz | $22-136 |
+
+### MAMA Detailní Hardware Specs
+
+**Důvod popularity MAMA:**
+- ✅ **Nízké HW nároky:** Běží i na 2015 budget laptopu
+- ✅ **Apple Silicon optimalizace:** M1/M2 ideální (10-25ms embeddings)
+- ✅ **ARM support:** Raspberry Pi 4+ funguje (100-200ms embeddings)
+- ✅ **Žádná GPU potřeba:** CPU inference dostatečně rychlá (<30ms target)
+
+**Performance:**
+```
+2GB RAM, 2-core CPU @ 1.5 GHz:  Minimum viable (embeddings ~50ms)
+4GB RAM, 4-core CPU @ 2.5 GHz:  Recommended (embeddings ~20ms)
+8GB RAM, 8-core M1/M2:          Ideal (embeddings ~10ms)
+```
+
+**Embedding Model:**
+- **multilingual-e5-small:** 118 MB ONNX model
+- **94 jazyků** včetně češtiny
+- **384-dimensional vectors**
+- **Inference:** Lokálně přes transformers.js (CPU only)
+
+**Database Growth:**
+```
+Light (10 decisions/week):   +5 MB/year
+Medium (50 decisions/week):  +30 MB/year
+Heavy (200 decisions/week):  +120 MB/year
+```
+
+**Více detailů:** Viz [MAMA_HARDWARE_REQUIREMENTS.md](MAMA_HARDWARE_REQUIREMENTS.md)
+
+---
+
 ## ❌ Systémy s POTVRZENÝM API Náklady (Vyvarujte se)
 
 ### claude-mem

@@ -25,6 +25,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 - **[CLAUDE_MEMORY_SYSTEMS_ANALYSIS.md](CLAUDE_MEMORY_SYSTEMS_ANALYSIS.md)** - Comprehensive analysis of 29 memory/persistence systems for Claude and AI assistants
 - **[MAMA_ANALYSIS.md](MAMA_ANALYSIS.md)** - Detailed technical analysis of MAMA (Memory-Augmented MCP Assistant) system: architecture, token efficiency, setup, and Claude Code compatibility
 - **[MAMA_API_COSTS_ANALYSIS.md](MAMA_API_COSTS_ANALYSIS.md)** - Deep dive into MAMA's internal API costs and token consumption - proves MAMA is 100% zero-cost with local embeddings
+- **[MAMA_HARDWARE_REQUIREMENTS.md](MAMA_HARDWARE_REQUIREMENTS.md)** - **HARDWARE SPECS** - Complete technical specification: disk space (160-600MB), RAM (1-4GB), CPU requirements, ARM/x64 support, performance benchmarks, platform compatibility
 - **[CLAUDE_MEM_API_COSTS_ANALYSIS.md](CLAUDE_MEM_API_COSTS_ANALYSIS.md)** - **HIDDEN COSTS REVEALED** - Deep analysis of claude-mem's INTERNAL token consumption: $0.05-1.50/day in API costs users don't expect, verification of "3x limit" claim
 - **[MEMORY_SYSTEMS_COMPARISON.md](MEMORY_SYSTEMS_COMPARISON.md)** - **DOPORUČENÍ** - Komplexní porovnání 32 memory systémů s doporučeními pro nejjednodušší lokální řešení s minimální spotřebou tokenů
 - **[MEMORY_SYSTEMS_REAL_COSTS.md](MEMORY_SYSTEMS_REAL_COSTS.md)** - **KALKULACE NÁKLADŮ** - Detailed cost analysis of memory systems using API calls: daily costs, token consumption, and verification of "3x limit" claim
