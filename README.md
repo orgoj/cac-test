@@ -18,6 +18,9 @@ This repository documents the **specific cloud environment** where Claude Code e
 
 - **[CLAUDE.md](CLAUDE.md)** - Pravidla pro práci s tímto repozitářem a strukturu dokumentace
 - **[CLAUDE_CONFIGURATION.md](CLAUDE_CONFIGURATION.md)** - Complete overview of Claude Code capabilities, tools, and operational instructions
+- **[CLAUDE_MEMORY_SYSTEMS_ANALYSIS.md](CLAUDE_MEMORY_SYSTEMS_ANALYSIS.md)** - Comprehensive analysis of 29 memory/persistence systems for Claude and AI assistants
+- **[MAMA_ANALYSIS.md](MAMA_ANALYSIS.md)** - Detailed technical analysis of MAMA (Memory-Augmented MCP Assistant) system: architecture, token efficiency, setup, and Claude Code compatibility
+- **[MEMORY_SYSTEMS_COMPARISON.md](MEMORY_SYSTEMS_COMPARISON.md)** - **DOPORUČENÍ** - Komplexní porovnání 32 memory systémů s doporučeními pro nejjednodušší lokální řešení s minimální spotřebou tokenů
 - **[CONFIGURATION.md](CONFIGURATION.md)** - Configuration system, directory structure, hooks, and skills (including available project skills)
 - **[PRPM_PROXY_ISSUE.md](PRPM_PROXY_ISSUE.md)** - Detailed analysis of DNS resolution issue with PRPM in proxy environments
 - **[SUBAGENT_MODEL_SELECTION.md](SUBAGENT_MODEL_SELECTION.md)** - Guide to dynamic model selection for subagents (Haiku/Sonnet/Opus)
