@@ -57,7 +57,7 @@ This repository documents the **specific cloud environment** where Claude Code e
 
 ### Environment Overview
 
-**Claude Code Version:** 2.0.34
+**Claude Code Version:** 2.0.50
 **Platform:** Ubuntu 24.04.3 LTS (Cloud/KVM)
 **Resources:** 16 CPU cores, 13 GB RAM, 30 GB disk
 **Location:** Google Cloud (104.155.178.59)
@@ -118,7 +118,7 @@ Key environment indicators:
 ```bash
 CLAUDECODE=1
 CLAUDE_CODE_REMOTE=true
-CLAUDE_CODE_VERSION=2.0.34
+CLAUDE_CODE_VERSION=2.0.50
 CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE=cloud_default
 ```
 
