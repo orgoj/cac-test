@@ -129,7 +129,7 @@ Key environment variables indicate this is a Claude Code remote environment:
 ```bash
 CLAUDECODE=1
 CLAUDE_CODE_REMOTE=true
-CLAUDE_CODE_VERSION=2.0.34
+CLAUDE_CODE_VERSION=2.0.50
 CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE=cloud_default
 CLAUDE_CODE_SESSION_ID=session_01SzNKhWoPpmRTik33gWKUw2
 IS_SANDBOX=yes
